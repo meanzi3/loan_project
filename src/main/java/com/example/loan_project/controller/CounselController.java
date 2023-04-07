@@ -6,10 +6,7 @@ import com.example.loan_project.dto.CounselDto.Request;
 import com.example.loan_project.dto.ResponseDto;
 import com.example.loan_project.service.CounselService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,5 +18,10 @@ public class CounselController extends AbstractController{
   @PostMapping
   public ResponseDto<Response>  create(@RequestBody Request request){
     return ok(counselService.create(request));
+  }
+
+  @GetMapping("/{counselId}")
+  public ResponseDto<Response> get(@PathVariable Long counselId){
+    return ok(counselService.get(counselId));
   }
 }

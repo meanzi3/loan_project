@@ -6,4 +6,6 @@ import com.example.loan_project.dto.CounselDto.Request;
 public interface CounselService {
 
   Response create(Request request);
+
+  Response get(Long counselId);
 }
