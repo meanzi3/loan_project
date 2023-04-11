@@ -1,12 +1,16 @@
 package com.example.loan_project.service;
 
 import com.example.loan_project.domain.Terms;
-import com.example.loan_project.dto.TermsDto;
+import com.example.loan_project.dto.TermsDto.Response;
+import com.example.loan_project.dto.TermsDto.Request;
 import com.example.loan_project.repository.TermsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,10 +23,16 @@ public class TermsServiceImpl implements TermsService {
 
 
   @Override
-  public TermsDto.Response create(TermsDto.Request request) {
+  public Response create(Request request) {
     Terms terms = modelMapper.map(request, Terms.class);
     Terms created = termsRepository.save(terms);
 
-    return modelMapper.map(created, TermsDto.Response.class);
+    return modelMapper.map(created, Response.class);
+  }
+
+  @Override
+  public List<Response> getAll() {
+    List<Terms> termsList = termsRepository.findAll();
+    return termsList.stream().map(t -> modelMapper.map(t, Response.class)).collect(Collectors.toList());
   }
 }

@@ -5,10 +5,9 @@ import com.example.loan_project.dto.TermsDto.Request;
 import com.example.loan_project.dto.TermsDto.Response;
 import com.example.loan_project.service.TermsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,5 +18,10 @@ public class TermsController extends AbstractController{
   @PostMapping
   public ResponseDto<Response> create(@RequestBody Request request){
     return ok(termsService.create(request));
+  }
+
+  @GetMapping
+  public ResponseDto<List<Response>> getAll(){
+    return ok(termsService.getAll());
   }
 }
