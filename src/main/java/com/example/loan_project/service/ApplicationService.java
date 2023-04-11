@@ -6,4 +6,6 @@ import com.example.loan_project.dto.ApplicationDto.Request;
 public interface ApplicationService {
 
   Response create(Request request);
+
+  Response get(Long applicationId);
 }
