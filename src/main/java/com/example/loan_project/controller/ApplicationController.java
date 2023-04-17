@@ -1,5 +1,6 @@
 package com.example.loan_project.controller;
 
+import com.example.loan_project.dto.ApplicationDto;
 import com.example.loan_project.dto.ApplicationDto.Response;
 import com.example.loan_project.dto.ApplicationDto.Request;
 import com.example.loan_project.dto.ResponseDto;
@@ -34,5 +35,10 @@ public class ApplicationController extends AbstractController{
     applicationService.delete(applicationId);
 
     return ok();
+  }
+
+  @PostMapping("/{applicationId}/terms")
+  public ResponseDto<Boolean> acceptTerms(@PathVariable Long applicationId, @RequestBody ApplicationDto.AcceptTerms request){
+    return ok(applicationService.acceptTerms(applicationId, request));
   }
 }
