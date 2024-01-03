@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,34 +55,34 @@ public class ApplicationController extends AbstractController{
     return ok(applicationService.acceptTerms(applicationId, request));
   }
 
-  @PostMapping("/files")
-  public ResponseDto<Void> upload(MultipartFile file){
-    fileStorageService.save(file);
+  @PostMapping("/{applicationId}/files")
+  public ResponseDto<Void> upload(@ PathVariable Long applicationId, MultipartFile file){
+    fileStorageService.save(applicationId, file);
     return ok();
   }
 
-  @GetMapping("/files")
-  public ResponseEntity<Resource> download(@RequestParam(value="fileName") String fileName){
-    Resource file = fileStorageService.load(fileName);
+  @GetMapping("/{applicationId}/files")
+  public ResponseEntity<Resource> download(@PathVariable Long applicationId, @RequestParam(value="fileName") String fileName) throws IllegalStateException, IOException {
+    Resource file = fileStorageService.load(applicationId, fileName);
     return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+file.getFilename()+"\"").body(file);
   }
 
-  @GetMapping("/files/info")
-  public ResponseDto<List<FileDto>> getFileInfos(){
-    List<FileDto> fileInfos = fileStorageService.loadAll().map(path -> {
+  @GetMapping("/{applicationId}/files/info")
+  public ResponseDto<List<FileDto>> getFileInfos(@PathVariable Long applicationId){
+    List<FileDto> fileInfos = fileStorageService.loadAll(applicationId).map(path -> {
       String fileName = path.getFileName().toString();
       return FileDto.builder()
               .name(fileName)
-              .url(MvcUriComponentsBuilder.fromMethodName(ApplicationController.class, "download", fileName).build().toString())
+              .url(MvcUriComponentsBuilder.fromMethodName(ApplicationController.class, "download", applicationId, fileName).build().toString())
               .build();
     }).collect(Collectors.toList());
 
     return ok(fileInfos);
   }
 
-  @DeleteMapping("/files")
-  public ResponseDto<Void> deleteAll(){
-    fileStorageService.deleteAll();;
+  @DeleteMapping("/{applicationId}/files")
+  public ResponseDto<Void> deleteAll(@PathVariable Long applicationId){
+    fileStorageService.deleteAll(applicationId);
     return ok();
   }
 }
