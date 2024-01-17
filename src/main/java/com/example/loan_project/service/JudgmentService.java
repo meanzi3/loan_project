@@ -15,4 +15,6 @@ public interface JudgmentService {
   // 수정
   Response update(Long judgmentId, Request request);
 
+  // 삭제
+  void delete(Long judgmentId);
 }
