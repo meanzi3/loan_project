@@ -12,4 +12,7 @@ public interface JudgmentService {
   // 신청 Id로 조회
   Response getJudgmentOfApplication(Long applicationId);
 
+  // 수정
+  Response update(Long judgmentId, Request request);
+
 }
