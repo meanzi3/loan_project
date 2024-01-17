@@ -10,12 +10,14 @@ import com.example.loan_project.exception.BaseException;
 import com.example.loan_project.exception.ResultType;
 import com.example.loan_project.repository.AcceptTermsRepository;
 import com.example.loan_project.repository.ApplicationRepository;
+import com.example.loan_project.repository.JudgmentRepository;
 import com.example.loan_project.repository.TermsRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,7 @@ public class ApplicationServiceImpl implements ApplicationService{
   private final AcceptTermsRepository acceptTermsRepository;
 
   private final ModelMapper modelMapper;
+  private final JudgmentRepository judgmentRepository;
 
   @Override
   public Response create(Request request) {
@@ -111,5 +114,29 @@ public class ApplicationServiceImpl implements ApplicationService{
     }
 
     return true;
+  }
+
+  @Override
+  public Response contract(Long applicationId) {
+    // 신청 정보가 있는지 확인
+    Application application = applicationRepository.findById(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    // 심사 정보가 있는지 확인
+    judgmentRepository.findByApplicationId(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    // 승인 금액 > 0 확인
+    if(application.getApprovalAmount() == null || application.getApprovalAmount().compareTo(BigDecimal.ZERO) == 0){
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    }
+
+    // 계약 체결
+    application.setContractedAt(LocalDateTime.now());
+    applicationRepository.save(application);
+
+    return null;
   }
 }
