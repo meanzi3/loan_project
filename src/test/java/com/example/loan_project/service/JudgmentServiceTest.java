@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.loan_project.domain.Application;
 import com.example.loan_project.domain.Judgment;
+import com.example.loan_project.dto.ApplicationDto;
 import com.example.loan_project.dto.JudgmentDto.*;
 import com.example.loan_project.repository.ApplicationRepository;
 import com.example.loan_project.repository.JudgmentRepository;
@@ -131,5 +132,30 @@ public class JudgmentServiceTest {
     judgmentService.delete(1L);
 
     assertThat(entity.getIsDeleted()).isTrue();
+  }
+
+  @Test
+  void Should_ReturnUpdateResponseExistApplicationEntity_When_RequestGrantApprovalAmountOfJudgmentInfo(){
+
+    Judgment judgmentEntity = Judgment.builder()
+            .name("Member Kim")
+            .applicationId(1L)
+            .approvalAmount(BigDecimal.valueOf(5000000))
+            .build();
+
+    Application applicationEntity = Application.builder()
+            .applicationId(1L)
+            .approvalAmount(BigDecimal.valueOf(5000000))
+            .build();
+
+    when(judgmentRepository.findById(1L)).thenReturn(Optional.ofNullable(judgmentEntity));
+    when(applicationRepository.findById(1L)).thenReturn(Optional.ofNullable(applicationEntity));
+    when(applicationRepository.save(ArgumentMatchers.any(Application.class))).thenReturn(applicationEntity);
+
+    ApplicationDto.GrantAmount actual = judgmentService.grant(1L);
+
+    assertThat(actual.getApplicationId()).isSameAs(1L);
+    assertThat(actual.getApprovalAmount()).isSameAs(judgmentEntity.getApprovalAmount());
+
   }
 }

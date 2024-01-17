@@ -1,6 +1,7 @@
 package com.example.loan_project.service;
 
 import com.example.loan_project.dto.JudgmentDto.*;
+import com.example.loan_project.dto.ApplicationDto.GrantAmount;
 
 public interface JudgmentService {
 
@@ -17,4 +18,7 @@ public interface JudgmentService {
 
   // 삭제
   void delete(Long judgmentId);
+
+  // 심사 금액 부여
+  GrantAmount grant(Long judgmentId);
 }
