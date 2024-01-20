@@ -45,7 +45,7 @@ public class ApplicationDto implements Serializable {
 
     private LocalDateTime contractedAt;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
   }
