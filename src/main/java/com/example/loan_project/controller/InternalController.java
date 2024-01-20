@@ -1,6 +1,8 @@
 package com.example.loan_project.controller;
 
+import com.example.loan_project.dto.EntryDto;
 import com.example.loan_project.dto.EntryDto.Response;
+import com.example.loan_project.dto.EntryDto.UpdateResponse;
 import com.example.loan_project.dto.EntryDto.Request;
 import com.example.loan_project.dto.ResponseDto;
 import com.example.loan_project.service.EntryService;
@@ -22,5 +24,10 @@ public class InternalController extends AbstractController{
   @GetMapping("{applicationId}/entries")
   public ResponseDto<Response> get(@PathVariable Long applicationId){
     return ok(entryService.get(applicationId));
+  }
+
+  @PutMapping("/entries/{entryId}")
+  public ResponseDto<UpdateResponse> update(@PathVariable Long entryId, @RequestBody Request request){
+    return ok(entryService.update(entryId, request));
   }
 }

@@ -1,7 +1,9 @@
 package com.example.loan_project.service;
 
 import com.example.loan_project.domain.Balance;
+import com.example.loan_project.dto.BalanceDto;
 import com.example.loan_project.dto.BalanceDto.Request;
+import com.example.loan_project.dto.BalanceDto.UpdateRequest;
 import com.example.loan_project.dto.BalanceDto.Response;
 import com.example.loan_project.exception.BaseException;
 import com.example.loan_project.exception.ResultType;
@@ -35,5 +37,25 @@ public class BalanceServiceImpl implements BalanceService{
     Balance saved = balanceRepository.save(balance);
 
     return modelMapper.map(saved, Response.class);
+  }
+
+  @Override
+  public Response update(Long applicationId, UpdateRequest request) {
+    // balance가 있는지 확인
+    Balance balance = balanceRepository.findByApplicationId(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    BigDecimal beforeEntryAmount = request.getBeforeEntryAmount();
+    BigDecimal afterEntryAmount = request.getAfterEntryAmount();
+    BigDecimal updatedBalance = balance.getBalance();
+
+    // as-is -> to-be
+    updatedBalance = updatedBalance.subtract(beforeEntryAmount).add(afterEntryAmount);
+    balance.setBalance(updatedBalance);
+
+    Balance updated = balanceRepository.save(balance);
+
+    return modelMapper.map(updated, Response.class);
   }
 }
