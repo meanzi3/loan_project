@@ -90,6 +90,28 @@ public class EntryServiceImpl implements EntryService{
             .build();
   }
 
+  @Override
+  public void delete(Long entryId) {
+    Entry entry = entryRepository.findById(entryId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    // soft delete
+    entry.setIsDeleted(true);
+
+    entryRepository.save(entry);
+
+    BigDecimal beforeEntryAmount = entry.getEntryAmount();
+
+    // 대출 잔고를 0으로
+    Long applicationId = entry.getApplicationId();
+    balanceService.update(applicationId,
+            BalanceDto.UpdateRequest.builder()
+                    .beforeEntryAmount(beforeEntryAmount)
+                    .afterEntryAmount(BigDecimal.ZERO)
+                    .build());
+  }
+
   private boolean isContractedApplication(Long applicationId){
     Optional<Application> existed = applicationRepository.findById(applicationId);
     if(existed.isEmpty()){

@@ -23,16 +23,20 @@ public class BalanceServiceImpl implements BalanceService{
 
   @Override
   public Response create(Long applicationId, Request request) {
-
-    // 이미 집행된 잔고가 있는지 확인
-    if(balanceRepository.findByApplicationId(applicationId).isPresent()){
-      throw new BaseException(ResultType.SYSTEM_ERROR);
-    }
     Balance balance = modelMapper.map(request, Balance.class);
 
     BigDecimal entryAmount = request.getEntryAmount();
     balance.setApplicationId(applicationId);
     balance.setBalance(entryAmount);
+
+    // request에 대한 값으로 먼저 세팅.
+    // 삭제 했다가 다시 entry를 등록할 때, 잔고가 존재하는 경우 update 하도록
+    balanceRepository.findByApplicationId(applicationId).ifPresent( b -> {
+      balance.setBalanceId(b.getBalanceId());
+      balance.setIsDeleted(b.getIsDeleted());
+      balance.setCreatedAt(b.getCreatedAt());
+      balance.setUpdatedAt(b.getUpdatedAt());
+    });
 
     Balance saved = balanceRepository.save(balance);
 
