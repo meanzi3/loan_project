@@ -11,6 +11,8 @@ import com.example.loan_project.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/internal/applications")
@@ -43,5 +45,10 @@ public class InternalController extends AbstractController{
   @PostMapping("/{applicationId}/repayments")
   public ResponseDto<RepaymentDto.Response> create(@PathVariable Long applicationId, @RequestBody RepaymentDto.Request request){
     return ok(repaymentService.create(applicationId, request));
+  }
+
+  @GetMapping("/{applicationId}/repayments")
+  public ResponseDto<List<RepaymentDto.ListResponse>> getPayments(@PathVariable Long applicationId){
+    return ok(repaymentService.get(applicationId));
   }
 }
