@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +36,20 @@ public class BalanceServiceImpl implements BalanceService{
       balance.setBalanceId(b.getBalanceId());
       balance.setIsDeleted(b.getIsDeleted());
       balance.setCreatedAt(b.getCreatedAt());
-      balance.setUpdatedAt(b.getUpdatedAt());
+      balance.setUpdatedAt(LocalDateTime.now());
     });
 
     Balance saved = balanceRepository.save(balance);
 
     return modelMapper.map(saved, Response.class);
+  }
+
+  @Override
+  public Response get(Long applicationId) {
+    Balance balance = balanceRepository.findById(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+    return modelMapper.map(balance, Response.class);
   }
 
   @Override
@@ -61,5 +70,40 @@ public class BalanceServiceImpl implements BalanceService{
     Balance updated = balanceRepository.save(balance);
 
     return modelMapper.map(updated, Response.class);
+  }
+
+  @Override
+  public Response repaymentUpdate(Long applicationId, BalanceDto.RepaymentRequest request) {
+    Balance balance = balanceRepository.findByApplicationId(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    BigDecimal updatedBalance = balance.getBalance();
+    BigDecimal repaymentAmount = request.getRepaymentAmount();
+
+    // 상환 정상 : balance - repaymentAmount
+    // 상환 롤백 : balance + repaymentAmount
+    if(request.getType().equals(BalanceDto.RepaymentRequest.RepaymentType.ADD)){
+      updatedBalance = updatedBalance.add(repaymentAmount);
+    } else{
+      updatedBalance = updatedBalance.subtract(repaymentAmount);
+    }
+
+    balance.setBalance(updatedBalance);
+
+    Balance updated = balanceRepository.save(balance);
+
+    return modelMapper.map(updated, Response.class);
+  }
+
+  @Override
+  public void delete(Long applicationId) {
+    Balance balance = balanceRepository.findByApplicationId(applicationId).orElseThrow(() -> {
+      throw new BaseException(ResultType.SYSTEM_ERROR);
+    });
+
+    balance.setIsDeleted(true);
+
+    balanceRepository.save(balance);
   }
 }

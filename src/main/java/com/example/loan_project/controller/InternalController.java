@@ -4,8 +4,10 @@ import com.example.loan_project.dto.EntryDto;
 import com.example.loan_project.dto.EntryDto.Response;
 import com.example.loan_project.dto.EntryDto.UpdateResponse;
 import com.example.loan_project.dto.EntryDto.Request;
+import com.example.loan_project.dto.RepaymentDto;
 import com.example.loan_project.dto.ResponseDto;
 import com.example.loan_project.service.EntryService;
+import com.example.loan_project.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class InternalController extends AbstractController{
 
   private final EntryService entryService;
+  private final RepaymentService repaymentService;
 
   @PostMapping("{applicationId}/entries")
   public ResponseDto<Response> create(@PathVariable Long applicationId, @RequestBody Request request){
@@ -35,5 +38,10 @@ public class InternalController extends AbstractController{
   public ResponseDto<Void> delete(@PathVariable Long entryId){
     entryService.delete(entryId);
     return ok();
+  }
+
+  @PostMapping("/{applicationId}/repayments")
+  public ResponseDto<RepaymentDto.Response> create(@PathVariable Long applicationId, @RequestBody RepaymentDto.Request request){
+    return ok(repaymentService.create(applicationId, request));
   }
 }
